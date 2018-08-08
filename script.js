@@ -40,8 +40,8 @@ function populate9x9() {
         }
       }
     }
-    return sudoku;
   }
+  return sudoku;
 }
 
 function uniqueInLines(sudoku, posX, posY) {
