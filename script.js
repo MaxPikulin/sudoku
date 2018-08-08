@@ -1,64 +1,59 @@
 function populate9x9() {
-  let sudoku = [[],[],[],[],[],[],[],[],[]];
-  let squares = [[0,0], [3,0], [6,0],
-  [0,3], [3,3], [6,3],
-  [0,6], [3,6], [6,6]];
+  let squares = [[0, 0], [3, 0], [6, 0],
+  [0, 3], [3, 3], [6, 3],
+  [0, 6], [3, 6], [6, 6]];
   let unique;
   let random;
-  let failCount = 0;
+  let counter;
+  let sudoku;
 
-  console.time('total');
-  for (let test = 0; test < 1000; test++) {
-    // console.time('each');
-    for (let currSquare = 0; currSquare < 9; currSquare++) {
-      reset: {
-        let startX = squares[currSquare][0];
-        let startY = squares[currSquare][1];
-        for (let y = startY; y < startY + 3; y++) {
-          for (let x = startX; x < startX + 3; x++) {
-            do {
-              random = rnd();
-              if (!uniqueInSquare(random, sudoku, startX, startY) || !uniqueInLines(random, sudoku, x, y)) {
-                unique = false;
-                failCount++;
-                if (failCount > 50) {
-                  clear3x3(sudoku, startX, startY);
-                  failCount = 0;
-                  currSquare = currSquare - 2;
-                  currSquare = currSquare < -1 ? -1 : currSquare;
-                  break reset;
-                }
-               } else {
-                unique = true;
-                failCount = 0;
-              }
-            } while (unique == false);
-            sudoku[y][x] = random;
-          }
+  sudoku = [[], [], [], [], [], [], [], [], []];
+  for (let currSquare = 0; currSquare < 9; currSquare++) {
+    reset: {
+      let startX = squares[currSquare][0];
+      let startY = squares[currSquare][1];
+      clear3x3(sudoku, startX, startY);
+      let set = [1, 2, 3, 4, 5, 6, 7, 8, 9].shuffle();
+      for (let y = startY; y < startY + 3; y++) {
+        for (let x = startX; x < startX + 3; x++) {
+          counter = set.length - 1;
+          do {
+            sudoku[y][x] = set[counter];
+            unique = false;
+            if (uniqueInLines(sudoku, x, y)) {
+              unique = true;
+              set.splice(counter, 1);
+              break;
+            } else {
+              counter--;
+            }
+            if (counter < 0) {
+              set = [1, 2, 3, 4, 5, 6, 7, 8, 9].shuffle();
+              counter = set.length - 1;
+              x = startX;
+              y = startY - 1;
+              clear3x3(sudoku, startX, startY);
+              currSquare = currSquare > 0 ? currSquare - 2 : -1;
+              break reset;
+            }
+          } while (unique === false);
         }
       }
     }
-    // console.timeEnd('each');
-    // console.table(sudoku);
+    return sudoku;
   }
-  console.timeEnd('total');
-  return sudoku;
 }
 
-function uniqueInSquare(number, sudoku, startX, startY) {
-  for (let y = startY; y < startY + 3; y++) {
-    for (let x = startX; x < startX + 3; x++) {
-      if (sudoku[y][x] === number) {
-        return false;
-      }
+function uniqueInLines(sudoku, posX, posY) {
+  for (let x = 0; x < 9; x++) {
+    if (x === posX) continue;
+    if (sudoku[posY][x] === sudoku[posY][posX]) {
+      return false;
     }
   }
-  return true;
-}
-
-function uniqueInLines(number, sudoku, posX, posY) {
-  for (let x = 0; x < 9; x++) {
-    if (sudoku[posY][x] === number || sudoku[x][posX] === number) {
+  for (let y = 0; y < 9; y++) {
+    if (y === posY) continue;
+    if (sudoku[y][posX] === sudoku[posY][posX]) {
       return false;
     }
   }
@@ -74,6 +69,26 @@ function clear3x3(sudoku, startX, startY) {
   return true;
 }
 
-function rnd() {
-  return Math.floor(Math.random() * 9) + 1;
+function rnd(to = 9, from = 1) {
+  return Math.floor(Math.random() * to) + from;
+}
+
+function test(func, times = 1) {
+  console.time('main');
+  for (let i = 0; i < times; i++) {
+    func();
+  }
+  console.timeEnd('main');
+  console.log(times + ' times.');
+}
+
+Array.prototype.shuffle = function() {
+  let input = this;
+  for (let currIndex = input.length - 1; currIndex >= 0; currIndex--) {
+    let random = rnd(input.length - 1, 0);
+    let value = input[currIndex];
+    input[currIndex] = input[random];
+    input[random] = value;
+  }
+  return input;
 }
