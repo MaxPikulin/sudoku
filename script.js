@@ -1,5 +1,6 @@
 function populate9x9() {
-  let squares = [[0, 0], [3, 0], [6, 0],
+  let squares = [
+  [0, 0], [3, 0], [6, 0],
   [0, 3], [3, 3], [6, 3],
   [0, 6], [3, 6], [6, 6]];
   let unique;
@@ -92,3 +93,46 @@ Array.prototype.shuffle = function() {
   }
   return input;
 }
+
+function populateGrid() {
+  const sudoku = populate9x9();
+  let cells = Array.from(document.querySelectorAll('.cell'))
+      .sort((el1, el2) => el1.dataset.num - el2.dataset.num);
+  // console.log(cells);
+  for (let y = 0; y < sudoku.length; y++) {
+    for (let x = 0; x < sudoku[y].length; x++) {
+      cells[y * sudoku.length + x].textContent = sudoku[y][x];
+    }
+  }
+  // console.log(sudoku);
+}
+
+ function makeGrid() {
+   let container = document.querySelector('.container');
+   document.querySelector('.sudoku') ? document.querySelector('.sudoku').remove() : '';
+
+   // let sudoku = populate9x9();
+   let cells = '<div class="sudoku">';
+   let outerDiv = document.createElement('div');
+   //stupidly complex logic to fill page elements with proper sudoku array elements, and numerate it.
+   for (let threeRow = 0, n = 0; threeRow < 9; threeRow += 3) {
+     for (let cubeCol = 0; cubeCol < 3; cubeCol++) {
+       cells += `<div class="cube">`;
+       for (let y = 0; y < 3; y++) {
+         for (let x = 0; x < 3; x++, n++) {
+           let temp = (threeRow + y) * 9 + (cubeCol * 3) + x;
+           cells += `<div class="cell" data-num="${temp}"></div>`;
+         }
+       }
+       cells += `</div>`;
+     }
+   }
+   cells += `</div>`;
+   outerDiv.innerHTML = cells;
+   container.appendChild(outerDiv.firstElementChild);
+   populateGrid();
+ }
+
+
+document.addEventListener('DOMContentLoaded', makeGrid);
+document.querySelector('.generate').addEventListener('click', populateGrid);
