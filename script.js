@@ -94,9 +94,9 @@ Array.prototype.shuffle = function() {
   return input;
 }
 
-function populateGrid() {
-  const sudoku = populate9x9();
-  let cells = Array.from(document.querySelectorAll('.cell'))
+function populateGrid(sudoku = populate9x9(), container = document) {
+  // const sudoku = populate9x9();
+  let cells = Array.from(container.querySelectorAll('.cell'))
       .sort((el1, el2) => el1.dataset.num - el2.dataset.num);
   // console.log(cells);
   for (let y = 0; y < sudoku.length; y++) {
@@ -109,7 +109,7 @@ function populateGrid() {
 
  function makeGrid() {
    let container = document.querySelector('.container');
-   document.querySelector('.sudoku') ? document.querySelector('.sudoku').remove() : '';
+   // document.querySelector('.sudoku') ? document.querySelector('.sudoku').remove() : '';
 
    // let sudoku = populate9x9();
    let cells = '<div class="sudoku">';
@@ -128,11 +128,20 @@ function populateGrid() {
      }
    }
    cells += `</div>`;
+   console.log(cells);
    outerDiv.innerHTML = cells;
-   container.appendChild(outerDiv.firstElementChild);
-   populateGrid();
+   return container.appendChild(outerDiv.firstElementChild);
+   // populateGrid();
  }
 
 
-document.addEventListener('DOMContentLoaded', makeGrid);
-document.querySelector('.generate').addEventListener('click', populateGrid);
+function clearPage() {
+  document.querySelector('.sudoku') ? document.querySelectorAll('.sudoku').forEach(sud=>sud.remove()) : '';
+}
+function newSudBtn() {
+  clearPage();
+  populateGrid(populate9x9(), makeGrid());
+}
+
+// document.addEventListener('DOMContentLoaded', makeGrid);
+document.querySelector('.generate').addEventListener('click', newSudBtn);
