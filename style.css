@@ -97,9 +97,9 @@ body {
 }
 
 .generate {
-  width: 340px;
-  height: 80px;
+  width: 300px;
+  height: 60px;
   /* margin-bottom: 50px; */
-  margin: 50px 0 100px 0;
+  margin: 20px 0 40px 0;
   font-size: 32px;
 }
