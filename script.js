@@ -1,5 +1,6 @@
 function populate9x9() {
-  let squares = [[0, 0], [3, 0], [6, 0],
+  let squares = [
+  [0, 0], [3, 0], [6, 0],
   [0, 3], [3, 3], [6, 3],
   [0, 6], [3, 6], [6, 6]];
   let unique;
@@ -40,8 +41,8 @@ function populate9x9() {
         }
       }
     }
-    return sudoku;
   }
+  return sudoku;
 }
 
 function uniqueInLines(sudoku, posX, posY) {
@@ -92,3 +93,106 @@ Array.prototype.shuffle = function() {
   }
   return input;
 }
+
+function populateGrid(sudoku = populate9x9(), container = document) {
+  let num;
+  // const sudoku = populate9x9();
+  let cells = Array.from(container.querySelectorAll('.cell'))
+      .sort((el1, el2) => el1.dataset.num - el2.dataset.num);
+  // console.log(cells);
+  for (let y = 0; y < sudoku.length; y++) {
+    for (let x = 0; x < sudoku[y].length; x++) {
+      let cell = cells[y * sudoku.length + x];
+      if (rnd() >= 8) {
+        num = 0;
+      } else {
+        num = sudoku[y][x];
+      }
+      if (num === 0) {
+        zerocellFiller(cell);
+      } else {
+        cell.textContent = num;
+      }
+    }
+  }
+  // console.log(sudoku);
+}
+
+function makeGrid() {
+ let container = document.querySelector('.container');
+ // document.querySelector('.sudoku') ? document.querySelector('.sudoku').remove() : '';
+
+ // let sudoku = populate9x9();
+ let cells = '<div class="sudoku">';
+ let outerDiv = document.createElement('div');
+ //stupidly complex logic to fill page elements with proper sudoku array elements, and numerate it.
+ for (let threeRow = 0, n = 0; threeRow < 9; threeRow += 3) {
+   for (let cubeCol = 0; cubeCol < 3; cubeCol++) {
+     cells += `<div class="cube">`;
+     for (let y = 0; y < 3; y++) {
+       for (let x = 0; x < 3; x++, n++) {
+         let temp = (threeRow + y) * 9 + (cubeCol * 3) + x;
+         cells += `<div class="cell nonzero" data-num="${temp}"></div>`;
+       }
+     }
+     cells += `</div>`;
+   }
+ }
+ cells += `</div>`;
+ console.log(cells);
+ outerDiv.innerHTML = cells;
+ return container.appendChild(outerDiv.firstElementChild);
+ // populateGrid();
+}
+
+function zerocellHandler(div) {
+  const cell = div.closest('.cell');
+  const number = div.textContent;
+  if (cell.classList.contains('hidden')) {
+    cell.classList.remove('hidden');
+    return;
+  }
+  cell.innerHTML = number;
+  cell.classList.remove('zerocell');
+  cell.classList.add('nonzero', 'guessed');
+  console.log(cell);
+}
+
+function zerocellFiller(div, secondGuess = false) {
+  div.innerHTML = '';
+  div.classList.remove('nonzero', 'guessed');
+  div.classList.add('zerocell', secondGuess?'gg':'hidden');
+  let fragment = document.createDocumentFragment();
+  let inner = '';
+  for (let i = 1; i <= 9; i++) {
+    let tempDiv = document.createElement('div');
+    tempDiv.innerHTML = `<div class="digit">${i}</div>`;
+    fragment.appendChild(tempDiv.firstElementChild);
+  }
+  div.appendChild(fragment);
+  return div;
+}
+
+function clearPage() {
+  document.querySelector('.sudoku') ? document.querySelectorAll('.sudoku').forEach(sud=>sud.remove()) : '';
+}
+
+function newSudBtn() {
+  clearPage();
+  populateGrid(populate9x9(), makeGrid());
+}
+
+function clickHandler(e) {
+  console.log(e);
+  let target = e.target;
+  if (target.classList.contains('digit')) {
+    zerocellHandler(target);
+  }
+  if (target.classList.contains('guessed')) {
+    zerocellFiller(target, true);
+  }
+}
+
+// document.addEventListener('DOMContentLoaded', makeGrid);
+document.querySelector('.generate').addEventListener('click', newSudBtn);
+document.body.addEventListener('click', clickHandler);
